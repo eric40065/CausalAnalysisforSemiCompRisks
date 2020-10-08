@@ -25,15 +25,15 @@ simulation(2, 'alter', sample_size = 1000, repeat_size = 100, get_variance = 'as
 ```r
 library(CausalAnalysisforSemiCompRisks)
 # The result of analyzing the REVEAL-HBV dataset as discussed in Section 7 in our paper.
-# We set get_variance as c('aymptotic', 'bootstrap') in our paper.
-result = CASCR(REVEAL_HBV, plot_result = T, get_variance = 'asymptotic')
+# We set downsample as 1 and get_variance as c('aymptotic', 'bootstrap') in our paper.
+result = CASCR(REVEAL_HBV, downsample = 5, get_variance = 'asymptotic', plot_result = T)
 
 # To get a quick result including bootstrap variance, one can run the following code.
 # It will take around 15 minutes.
-result = CASCR(REVEAL_HBV, downsample = 60, plot_result = T, get_variance = c('asymptotic', 'bootstrap'))
+result = CASCR(REVEAL_HBV, downsample = 60, get_variance = c('asymptotic', 'bootstrap'), plot_result = T)
 
 # The result of sensitivity analysis as presented in Supplement Material in Section 11.
-result = CHH2020(REVEAL_HBV, sen_ana = T, get_variance = NULL)
+result = CASCR(REVEAL_HBV, sen_ana = T, get_variance = NULL)
 ```
 
 ## More details
