@@ -3,7 +3,7 @@ This is an R-package for analyzing semi-competing risks data using causal mediat
 
 ## Installation
 ```r
-devtools::install_github("JuShengHong/CausalAnalysisforSemiCompRisks")
+devtools::install_github("eric40065/CausalAnalysisforSemiCompRisks")
 ```
 
 ## Usage
