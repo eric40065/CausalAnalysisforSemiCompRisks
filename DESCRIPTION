@@ -1,0 +1,21 @@
+Package: CausalAnalysisforSemiCompRisks
+Title: Semi-parametric causal mediation modeling of semicompeting risks
+Version: 1.1.1
+Authors@R: 
+    person(given = "First",
+           family = "Last",
+           role = c("aut", "cre"),
+           email = "first.last@example.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: This is an R-package for analyzing semi-competing risks data using causal mediation inference. This package is aimed to illustrate the methodology presented in "Semiparametric causal mediation modeling of hepatitis on mortality through liver cancer incidence".
+License:
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Depends: 
+    R (>= 3.4.0)
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
