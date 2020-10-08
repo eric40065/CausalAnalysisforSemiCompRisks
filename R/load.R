@@ -14,7 +14,6 @@
 #' @param sen_ana doing sensitivity analysis or not. Default is \code{FALSE}.
 #' @param num_of_cores the number of cores assigned. Default is \code{1}.
 #' @param plot_result will show some primary result. Default is \code{FALSE}.
-#' @param variance_method will be deleted.
 #' @param threshold specifies if a logistic regression converge or not. Default is \code{1e-12}.
 #' @return \code{CASCR} returns a list with components specified by \code{effect}.
 #' @export

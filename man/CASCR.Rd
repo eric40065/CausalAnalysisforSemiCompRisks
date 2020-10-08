@@ -32,7 +32,7 @@ CASCR(
 
 \item{myunit}{the length to be considered as one unit. Default is \code{"raw"}.}
 
-\item{downsample}{indicates how many consecutive event should be considered as the same. Default is \code{1}.}
+\item{downsample}{indicates how many consecutive event should be considered as one event. Default is \code{1}.}
 
 \item{sen_ana}{doing sensitivity analysis or not. Default is \code{FALSE}.}
 
@@ -45,8 +45,6 @@ CASCR(
 \item{num_of_cores}{the number of cores assigned. Default is \code{1}.}
 
 \item{plot_result}{will show some primary result. Default is \code{FALSE}.}
-
-\item{variance_method}{will be deleted.}
 
 \item{threshold}{specifies if a logistic regression converge or not. Default is \code{1e-12}.}
 }
