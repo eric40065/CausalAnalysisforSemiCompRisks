@@ -1686,8 +1686,8 @@ estimate_effect = function(df, effect, intervention, cal_level, sen_ana, get_var
   result$sick_alive = estimation_alpha$sick_alive
   result$converged_alpha = estimation_alpha$converged_alpha
   result$alpha = estimation_alpha$coeff
-  result$cox_b0 = list(coeff = cox_b0$coeff, cum_haz = cox_b0$cum_haz)
-  result$cox_b1 = list(coeff = cox_b1$coeff, cum_haz = cox_b1$cum_haz)
+  result$cox_b0 = list(coeff = cox_b0$coeff, cum_haz = small_cox_b0$cum_haz)
+  result$cox_b1 = list(coeff = cox_b1$coeff, cum_haz = small_cox_b1$cum_haz)
   return(result)
 }
 
