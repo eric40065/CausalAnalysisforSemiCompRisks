@@ -709,7 +709,7 @@ make_small = function(cox_b, unique_T2){
     all_time_diff = diff(sort(c(cox_b$cum_haz$cum_haz, unique_T2)))
     time_diff = min(all_time_diff[all_time_diff!=0])/3
     new_cum_haz = approx(x = cox_b$cum_haz$time, y = cox_b$cum_haz$cum_haz, xout = unique_T2 + time_diff, rule = 2, method = 'constant')
-    cox_b$cum_haz = list(cum_haz = new_cum_haz$y, time = unique_T2)
+    cox_b$cum_haz = data.frame(cum_haz = new_cum_haz$y, time = unique_T2)
     return(cox_b)
   }
 }
