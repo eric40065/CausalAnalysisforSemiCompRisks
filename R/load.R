@@ -17,7 +17,7 @@
 #' @param threshold specifies if a logistic regression converge or not. Default is \code{1e-12}.
 #' @return \code{CASCR} returns a list with components specified by \code{effect}.
 #' @export
-CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level = 'median', myunit = 'raw', downsample = 1, sen_ana = FALSE, get_variance = c('asymptotic'), boot_times = 1000, timer = TRUE, num_of_cores = 1, plot_result = FALSE, variance_method = 'new', threshold = 1e-12){
+CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level = 'median', myunit = 'raw', downsample = 1, sen_ana = FALSE, get_variance = c('asymptotic'), boot_times = 1000, timer = TRUE, num_of_cores = 1, plot_result = FALSE, variance_method = 'new', threshold = 1e-10){
   # protect the original data
   dff = df
 
