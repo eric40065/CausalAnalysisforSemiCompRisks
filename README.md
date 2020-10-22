@@ -37,7 +37,7 @@ result = CASCR(REVEAL_HBV, downsample = 5, get_variance = 'asymptotic', plot_res
 result = CASCR(REVEAL_HBV, downsample = 60, get_variance = c('asymptotic', 'bootstrap'), plot_result = T)
 # result = CASCR(REVEAL_HBV, get_variance = c('asymptotic', 'bootstrap'), plot_result = T) # Run this line to get the result in our paper.
 
-# The result of sensitivity analysis as presented in Supplement Material in Section 11.
+# The result of sensitivity analysis as presented in Section 11 of Supplement Material.
 result = CASCR(REVEAL_HBV, sen_ana = T, get_variance = NULL)
 ```
 
