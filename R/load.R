@@ -1,6 +1,6 @@
 #' Semiparametric Causal Mediation Modeling of Semi-Competing Risks
 #'
-#' This function analysis semicompeting risks data and gives the estimators of direct and indirect effects, along with their variances.
+#' This function analyzes semicompeting risks data and gives the estimators of direct and indirect effects, along with their variances.
 #'
 #' @param df a data frame with designated column order: \code{T1}, \code{T2}, \code{d1}, \code{d2}, \code{Z}, \code{X} where X maybe empty or a matrix.
 #' @param effect the causal effect to be estimated. Choices are \code{"DE"} or \code{"IE"}. Default is \code{c("DE", "IE")}
@@ -14,7 +14,7 @@
 #' @param sen_ana doing sensitivity analysis or not. Default is \code{FALSE}.
 #' @param num_of_cores the number of cores assigned. Default is \code{1}.
 #' @param plot_result will show some primary result. Default is \code{FALSE}.
-#' @param threshold specifies if a logistic regression converge or not. Default is \code{1e-12}.
+#' @param threshold specifies if a logistic regression converge or not. Default is \code{1e-10}.
 #' @return \code{CASCR} returns a list with components specified by \code{effect}.
 #' @export
 CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level = 'median', myunit = 'raw', downsample = 1, sen_ana = FALSE, get_variance = c('asymptotic'), boot_times = 1000, timer = TRUE, num_of_cores = 1, plot_result = FALSE, variance_method = 'new', threshold = 1e-10){
@@ -165,7 +165,7 @@ CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level =
 
 #' Semiparametric Causal Mediation Modeling of Semi-Competing Risks
 #'
-#' This function analysis semicompeting risks data and gives the estimators of direct and indirect effects, along with their variances.
+#' A function that simulates different situations.
 #'
 #' @param simulation_type Choices are \code{1} (unbiasedness) or \code{2} (coverage).
 #' @param hypo Choices are \code{null} or \code{alter}.
@@ -173,7 +173,7 @@ CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level =
 #' @param repeat_size Default is \code{1000}.
 #' @param num_of_cores the number of cores assigned. Default is \code{1}.
 #' @param timer will show the progress. Default is \code{TRUE}.
-#' @return \code{CASCR} returns 6 plots if \code{simulation_type == 1}; a data frame containing coverage if \code{simulation_type == 2}.
+#' @return \code{simulation} returns 6 plots if \code{simulation_type == 1}; a data frame containing coverage if \code{simulation_type == 2}.
 #' @export
 simulation = function(simulation_type, hypo, sample_size = 1000, repeat_size = 1000, num_of_cores = 1, timer = TRUE, get_variance = c('a', 'b')){
   if(simulation_type == 1){

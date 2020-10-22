@@ -18,7 +18,7 @@ CASCR(
   num_of_cores = 1,
   plot_result = FALSE,
   variance_method = "new",
-  threshold = 1e-12
+  threshold = 1e-10
 )
 }
 \arguments{
@@ -46,11 +46,11 @@ CASCR(
 
 \item{plot_result}{will show some primary result. Default is \code{FALSE}.}
 
-\item{threshold}{specifies if a logistic regression converge or not. Default is \code{1e-12}.}
+\item{threshold}{specifies if a logistic regression converge or not. Default is \code{1e-10}.}
 }
 \value{
 \code{CASCR} returns a list with components specified by \code{effect}.
 }
 \description{
-This function analysis semicompeting risks data and gives the estimators of direct and indirect effects, along with their variances.
+This function analyzes semicompeting risks data and gives the estimators of direct and indirect effects, along with their variances.
 }
