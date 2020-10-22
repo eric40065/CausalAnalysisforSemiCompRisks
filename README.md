@@ -14,28 +14,28 @@ library(CausalAnalysisforSemiCompRisks)
 # times to get more accurate result.
 simulation(1, hypo = 'null', repeat_size = 100)
 simulation(1, hypo = 'alter', repeat_size = 100)
-# simulation(1, hypo = 'null') # Run this line to get the same result from our paper.
-# simulation(1, hypo = 'alter') # Run this line to get the same result from our paper.
+# simulation(1, hypo = 'null') # Run this line to get the result in our paper.
+# simulation(1, hypo = 'alter') # Run this line to get the result in our paper.
 
 # The result of coverage rate as presented in Table 1 in our paper. We repeat it 1,000 times
 # and we set get_variance as c('aymptotic', 'bootstrap') to get more accurate result.
 # This, however, spend plenty of time.
 simulation(2, 'null', sample_size = 1000, repeat_size = 100, get_variance = 'asymptotic')
 simulation(2, 'alter', sample_size = 1000, repeat_size = 100, get_variance = 'asymptotic')
-# simulation(2, 'null') # Run this line to get the same result from our paper.
-# simulation(2, 'alter') # Run this line to get the same result from our paper.
+# simulation(2, 'null') # Run this line to get the result in our paper.
+# simulation(2, 'alter') # Run this line to get the result in our paper.
 ```
 ### REVEAL-HBV
 ```r
 library(CausalAnalysisforSemiCompRisks)
 # The result of analyzing the REVEAL-HBV dataset as discussed in Section 7 in our paper.
-# We set downsample as 1 and get_variance as c('aymptotic', 'bootstrap') from our paper.
+# We set downsample as 1 and get_variance as c('aymptotic', 'bootstrap') in our paper.
 result = CASCR(REVEAL_HBV, downsample = 5, get_variance = 'asymptotic', plot_result = T)
 
 # To get a quick result including bootstrap variance, one can run the following code.
 # It will take around 15 minutes.
 result = CASCR(REVEAL_HBV, downsample = 60, get_variance = c('asymptotic', 'bootstrap'), plot_result = T)
-# result = CASCR(REVEAL_HBV, get_variance = c('asymptotic', 'bootstrap'), plot_result = T) # Run this line to get the same result in our paper.
+# result = CASCR(REVEAL_HBV, get_variance = c('asymptotic', 'bootstrap'), plot_result = T) # Run this line to get the result in our paper.
 
 # The result of sensitivity analysis as presented in Supplement Material in Section 11.
 result = CASCR(REVEAL_HBV, sen_ana = T, get_variance = NULL)
