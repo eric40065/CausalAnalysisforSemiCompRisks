@@ -8,7 +8,7 @@ Authors@R:
            email = "first.last@example.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: This is an R-package for analyzing semi-competing risks data using causal mediation inference. This package is aimed to illustrate the methodology presented in "Semiparametric causal mediation modeling of hepatitis on mortality through liver cancer incidence".
-License:
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
