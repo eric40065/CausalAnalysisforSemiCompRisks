@@ -9,6 +9,7 @@ devtools::install_github("eric40065/CausalAnalysisforSemiCompRisks")
 ## Usage
 The following code can reproduce everything mentioned in our paper. It will take 1 day to reproduce the analyses.
 ```r
+library(CausalAnalysisforSemiCompRisks)
 # To reproduce Figure 1(a), 1(b), 1(e), 1(f), 1(i), and 1(j) in page 19
 simulation(1, hypo = 'null')
 # To reproduce Figure 1(c), 1(d), 1(g), 1(h), 1(k), and 1(l) in page 19
