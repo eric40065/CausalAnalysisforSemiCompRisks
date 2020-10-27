@@ -27,7 +27,8 @@ simulation(2, 'alter', sample_size = 1000, repeat_size = 100, get_variance = 'as
 ```
 ### REVEAL-HBV
 #### Abstract
-    REVEAL-HBV is a community-based prospective cohort study conducted in Taiwan. We adjusted age at the cohort entry and the history of alcohol consumption (yes vs. no) as covariates in our model.
+    * REVEAL-HBV is a community-based prospective cohort study conducted in Taiwan.
+    * We adjusted age at the cohort entry and the history of alcohol consumption (yes vs. no) as covariates in our model.
 #### Dictionary
 ```r
 library(CausalAnalysisforSemiCompRisks)
