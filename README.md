@@ -7,13 +7,17 @@ devtools::install_github("eric40065/CausalAnalysisforSemiCompRisks")
 ```
 
 ## Usage
-The following code can reproduce everything mentioned in our paper. It will take one hour to reproduce Figure 1 and 2 and over 10 days to reproduce Table 1.
+The following code can reproduce everything mentioned in our paper. It will take around two hours to reproduce Figure 1 and 2 and over 10 days to reproduce Table 1.
 ```r
 library(CausalAnalysisforSemiCompRisks)
 # To reproduce Figure 1(a), 1(b), 1(e), 1(f), 1(i), and 1(j) in page 19
 simulation(1, hypo = 'null')
 # To reproduce Figure 1(c), 1(d), 1(g), 1(h), 1(k), and 1(l) in page 19
 simulation(1, hypo = 'alter')
+# To reproduce Figure 2(a)--(d) in page 25
+HBV_result = CASCR(REVEAL_HBV, get_variance = c('asymptotic', 'bootstrap'), plot_result = T)
+# To reproduce Figure 1(a)--(j) in page 20 of supplement material
+HBV_sen_ana = CASCR(REVEAL_HBV, sen_ana = T, get_variance = NULL)
 # To reproduce the first part of Table 1 in page 21
 Table11 = simulation(2, hypo = 'null', sample_size = 300)
 # To reproduce the second part of Table 1 in page 21
@@ -22,10 +26,6 @@ Table12 = simulation(2, hypo = 'null', sample_size = 1000)
 Table13 = simulation(2, hypo = 'alter', sample_size = 300)
 # To reproduce the last part of Table 1 in page 21
 Table14 = simulation(2, hypo = 'alter', sample_size = 1000)
-# To reproduce Figure 2(a)--(d) in page 25
-HBV_result = CASCR(REVEAL_HBV, get_variance = c('asymptotic', 'bootstrap'), plot_result = T)
-# To reproduce Figure 1(a)--(j) in page 20 of supplement material
-HBV_sen_ana = CASCR(REVEAL_HBV, sen_ana = T, get_variance = NULL)
 ```
 The following code provides a glimpse of the analysis.
 
