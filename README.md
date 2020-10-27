@@ -31,13 +31,14 @@ simulation(2, 'alter', sample_size = 1000, repeat_size = 100, get_variance = 'as
 - We adjusted age at the cohort entry and the history of alcohol consumption (yes vs. no) as covariates in our model.
 #### Dictionary
 REVEAL-HBV contains 11,946 male patients with 7 columns.
-    hcc.time
-    die.time
-    hcc.case
-    dieall.case
-    HBSAG
-    AGE
-    alcohol1
+
+    hcc.time: time to liver cancer incidence or censored time (days).
+    die.time: time to death or censored time (days).
+    hcc.case: whether or not the liver cancer incidence is observed (0: no vs. 1:yes).
+    dieall.case: whether or not death is observed (no: 0 vs. yes: 1).
+    HBSAG: hepatitis B surface antigen (negative: 0 vs. positive : 1)
+    AGE: age at the cohort entry
+    alcohol1: the alcohol consumption history (no: 0 vs. yes: 1)
 
 #### code
 ```r
