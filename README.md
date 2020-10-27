@@ -38,7 +38,7 @@ REVEAL-HBV contains 11,946 male patients with 7 columns.
 - HBSAG: hepatitis B surface antigen (negative: 0 vs. positive : 1)
 - AGE: age at the cohort entry
 - alcohol1: the alcohol consumption history (no: 0 vs. yes: 1)
-#### code
+#### Code
 ```r
 library(CausalAnalysisforSemiCompRisks)
 # The result of analyzing the REVEAL-HBV dataset as discussed in Section 7 in our paper.
