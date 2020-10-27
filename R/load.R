@@ -261,7 +261,7 @@ unbiasedness = function(hypo, sample_size, repeat_size, num_of_cores = 1, timer 
     ## fetch basic parameter
     if(timer){
       space = 100
-      pracma::fprintf('| bootstrap        20        30        40        50        60        70        80        90    100 |\n')
+      pracma::fprintf('|         10       20        30        40        50        60        70        80        90    100 |\n')
       loop_count = 1:repeat_size
       counter_total = repeat_size
       cum_bar_num = my_eva_fun(list(1:space, 1:space / space * counter_total), loop_count, rule = '0')
@@ -407,7 +407,7 @@ coverage = function(hypo, sample_size, repeat_size, num_of_cores, timer = TRUE, 
     ## fetch basic parameter
     if(timer){
       space = 100
-      pracma::fprintf('| bootstrap        20        30        40        50        60        70        80        90    100 |\n')
+      pracma::fprintf('|         10       20        30        40        50        60        70        80        90    100 |\n')
       loop_count = 1:repeat_size
       counter_total = repeat_size
       cum_bar_num = my_eva_fun(list(1:space, 1:space / space * counter_total), loop_count, rule = '0')
@@ -855,7 +855,7 @@ estimate_alpha = function(df, cal_level, cox_b0, cox_b1, unique_T2, get_variance
 
   if(timer){
     space = 100
-    pracma::fprintf('| estimating alpha 20        30        40        50        60        70        80        90    100 |\n')
+    pracma::fprintf('| point estimation 20        30        40        50        60        70        80        90    100 |\n')
     loop_count = 1:observed_t2
     counter_total = observed_t2
     cum_bar_num = my_eva_fun(list(1:space, 1:space / space * counter_total), loop_count, rule = '0')
@@ -1039,7 +1039,7 @@ estimate_alpha = function(df, cal_level, cox_b0, cox_b1, unique_T2, get_variance
       }
     }else{
       if(timer){
-        pracma::fprintf('| estimating the covariance of alpha   40        50        60        70        80        90    100 |\n')
+        pracma::fprintf('| variance estimation        30        40        50        60        70        80        90    100 |\n')
         loop_count = (1:observed_t2) * (1:observed_t2 - 1) / 2
         counter_total = observed_t2 * (observed_t2 - 1) / 2
         cum_bar_num = my_eva_fun(list(1:space, 1:space / space * counter_total), loop_count, rule = '0')
