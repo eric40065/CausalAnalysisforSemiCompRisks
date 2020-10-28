@@ -51,7 +51,7 @@ simulation(2, hypo = 'alter', sample_size = 1000, repeat_size = 100, get_varianc
 REVEAL-HBV contains 11,946 male patients with 7 columns.
 - hcc.time: time to liver cancer incidence or censored time (days).
 - die.time: time to death or censored time (days).
-- hcc.case: whether or not the liver cancer incidence is observed (0: no vs. 1:yes).
+- hcc.case: whether or not the liver cancer incidence is observed (no: 0 vs. yes: 1).
 - dieall.case: whether or not death is observed (no: 0 vs. yes: 1).
 - HBSAG: hepatitis B surface antigen (negative: 0 vs. positive : 1)
 - AGE: age at the cohort entry
