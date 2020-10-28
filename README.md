@@ -39,7 +39,6 @@ simulation(1, hypo = 'alter', repeat_size = 100)
 
 # The result of coverage rate as presented in Table 1 in our paper. We repeat it 1,000 times
 # and we set get_variance as c('aymptotic', 'bootstrap') to get more accurate result.
-# This, however, spend plenty of time.
 simulation(2, hypo = 'null', sample_size = 1000, repeat_size = 100, get_variance = 'asymptotic')
 simulation(2, hypo = 'alter', sample_size = 1000, repeat_size = 100, get_variance = 'asymptotic')
 ```
