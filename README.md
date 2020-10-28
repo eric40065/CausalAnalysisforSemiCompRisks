@@ -27,7 +27,7 @@ Table13 = simulation(2, hypo = 'alter', sample_size = 300)
 # To reproduce the last part of Table 1 in page 21
 Table14 = simulation(2, hypo = 'alter', sample_size = 1000)
 ```
-The following code provides a glimpse of the analysis.
+The following code provides a glimpse of the analyses.
 
 ### simulation
 ```r
