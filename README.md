@@ -7,7 +7,7 @@ devtools::install_github("eric40065/CausalAnalysisforSemiCompRisks")
 ```
 
 ## Usage
-The following code can reproduce analyses in our paper. It will take around five hours to reproduce Figure 1 and 2 and around 3 weeks (estimated) on a single-core machine to reproduce Table 1.
+The following code can reproduce analyses in our paper. It will take around five hours to reproduce Figure 1 and 2 and around 11 days on a single-core machine to reproduce Table 1.
 ```r
 library(CausalAnalysisforSemiCompRisks)
 # To reproduce Figure 1(a), 1(b), 1(e), 1(f), 1(i), and 1(j) in page 19
