@@ -60,7 +60,7 @@ REVEAL-HBV contains 11,946 male patients with 7 columns.
 ```r
 library(CausalAnalysisforSemiCompRisks)
 # The result of analyzing the REVEAL-HBV dataset as discussed in Section 7 in our paper.
-# We set downsample as 1 and get_variance as c('aymptotic', 'bootstrap') in our paper.
+# We set downsample = 1 and get_variance = c('aymptotic', 'bootstrap') in our paper.
 result = CASCR(REVEAL_HBV, downsample = 5, get_variance = 'asymptotic', plot_result = T)
 
 # To get a quick result including bootstrap variance, one can run the following code.
