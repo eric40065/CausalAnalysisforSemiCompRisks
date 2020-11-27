@@ -812,8 +812,8 @@ my_sort_mat = function(mat){
 
 ## estimation
 #' @export
-estimate_alpha = function(df, cal_level, cox_b0, cox_b1, unique_T2, get_variance, timer, num_of_cores, variance_method, threshold){
-  # cox_b0 = small_cox_b0; cox_b1 = small_cox_b1
+estimate_alpha = function(df, cal_level, cox_b1, cox_whole, unique_T2, get_variance, timer, num_of_cores, variance_method, threshold){
+  # cox_b1 = small_cox_b1; cox_whole = small_cox_whole
 
   ## fetch basic parameters
   m = dim(df)[1]
@@ -928,7 +928,7 @@ estimate_alpha = function(df, cal_level, cox_b0, cox_b1, unique_T2, get_variance
       alpha_var[((i - 1) * n_covariates + 1) : (i * n_covariates), ] = tryCatch(solve(crossprod(sub_x * (prob * (1 - prob)), sub_x)), error = function(msg){return(alpha_var[((i - 2) * n_covariates + 1) : ((i - 1) * n_covariates), ])})
     }
   }
-  # make some dataframe
+  # make some dataframes
   sick_alive = data.frame(time = unique_T2, number = sick_alive)
   alive = data.frame(time = unique_T2, number = alive)
   healthy_alive = data.frame(time = unique_T2, number = healthy_alive)
@@ -942,13 +942,8 @@ estimate_alpha = function(df, cal_level, cox_b0, cox_b1, unique_T2, get_variance
       cum_haz_1_fulltime = approx(x = cox_b1$cum_haz$time, y = cox_b1$cum_haz$cum_haz, xout = unique_T2, method = 'constant', yleft = 0, rule = 2)$y
       survival1_cov = exp(as.matrix(df_alpha_covariates[, 2:n_covariates]) %*% cox_b1$coeff)
 
-      if(length(cox_b0) > 1){
-        cum_haz_0_fulltime = approx(x = cox_b0$cum_haz$time, y = cox_b0$cum_haz$cum_haz, xout = unique_T2, method = 'constant', yleft = 0, rule = 2)$y
-        survival0_cov = exp(as.matrix(df_alpha_covariates[, 2:n_covariates]) %*% cox_b0$coeff)
-      }else{
-        cum_haz_0_fulltime = rep(0, observed_t2)
-        survival0_cov = rep(1, m)
-      }
+      cum_haz_whole_fulltime = cox_whole$cum_haz$cum_haz
+      survivalwhole_cov = exp(as.matrix(df_alpha_covariates[, 2:n_covariates]) %*% cox_whole$coeff)
     }
 
     if(num_of_cores > 1){
@@ -976,7 +971,7 @@ estimate_alpha = function(df, cal_level, cox_b0, cox_b1, unique_T2, get_variance
 
           if(variance_method == "new"){
             survival1_cov_now = survival1_cov[rank_t2[counter_i]:m]
-            survival0_cov_now = survival0_cov[rank_t2[counter_i]:m]
+            survivalwhole_cov_now = survivalwhole_cov[rank_t2[counter_i]:m]
           }
 
           p2 = as.vector(1 / (1 + exp(-sub_i %*% alpha_mat[, counter_i])))
@@ -988,14 +983,13 @@ estimate_alpha = function(df, cal_level, cox_b0, cox_b1, unique_T2, get_variance
           if(rank_t2[counter_i] == m){
             for(counter_j in 1:(counter_i - 1)){
               if(variance_method == "new"){
-                surv_n1_1 = exp(-survival1_cov_now * (cum_haz_1_fulltime[counter_i] - cum_haz_1_fulltime[counter_j]))
-                surv_n1_0 = exp(-survival0_cov_now * (cum_haz_0_fulltime[counter_i] - cum_haz_0_fulltime[counter_j]))
+                surv_n1_1 = exp(survival1_cov_now * (cum_haz_1_fulltime[counter_j] - cum_haz_1_fulltime[counter_i]))
+                surv_n1_whole = exp(survivalwhole_cov_now * (cum_haz_whole_fulltime[counter_j] - cum_haz_whole_fulltime[counter_i]))
               }
               p1 = 1/(1 + exp(-as.vector(sub_i %*% alpha_mat[, counter_j])))
 
               if(variance_method == 'new'){
-                s1p1 = surv_n1_1 * p1
-                prob = s1p1 * (1 - p2 * (s1p1 + surv_n1_0 * (1 - p1)))
+                prob = surv_n1_1/surv_n1_whole * p1 * (1 - p2)
               }else{
                 prob = p1 * (1 - p2)
               }
@@ -1008,14 +1002,13 @@ estimate_alpha = function(df, cal_level, cox_b0, cox_b1, unique_T2, get_variance
           }else{
             for(counter_j in 1:(counter_i - 1)){
               if(variance_method == "new"){
-                surv_n1_1 = exp(-survival1_cov_now * (cum_haz_1_fulltime[counter_i] - cum_haz_1_fulltime[counter_j]))
-                surv_n1_0 = exp(-survival0_cov_now * (cum_haz_0_fulltime[counter_i] - cum_haz_0_fulltime[counter_j]))
+                surv_n1_1 = exp(survival1_cov_now * (cum_haz_1_fulltime[counter_j] - cum_haz_1_fulltime[counter_i]))
+                surv_n1_whole = exp(survivalwhole_cov_now * (cum_haz_whole_fulltime[counter_j] - cum_haz_whole_fulltime[counter_i]))
               }
               p1 = 1/(1 + exp(-as.vector(sub_i %*% alpha_mat[, counter_j])))
 
               if(variance_method == 'new'){
-                s1p1 = surv_n1_1 * p1
-                prob = s1p1 * (1 - p2 * (s1p1 + surv_n1_0 * (1 - p1)))
+                prob = surv_n1_1/surv_n1_whole * p1 * (1 - p2)
               }else{
                 prob = p1 * (1 - p2)
               }
@@ -1058,7 +1051,7 @@ estimate_alpha = function(df, cal_level, cox_b0, cox_b1, unique_T2, get_variance
           sub_i = df_alpha_covariates[rank_t2[counter_i]:m, ]
           if(variance_method == "new"){
             survival1_cov_now = survival1_cov[rank_t2[counter_i]:m]
-            survival0_cov_now = survival0_cov[rank_t2[counter_i]:m]
+            survivalwhole_cov_now = survivalwhole_cov[rank_t2[counter_i]:m]
           }
 
           p2 = as.vector(1 / (1 + exp(-sub_i %*% alpha_mat[, counter_i])))
@@ -1071,14 +1064,13 @@ estimate_alpha = function(df, cal_level, cox_b0, cox_b1, unique_T2, get_variance
           if(rank_t2[counter_i] == m){
             for(counter_j in 1:(counter_i - 1)){
               if(variance_method == "new"){
-                surv_n1_1 = exp(-survival1_cov_now * (cum_haz_1_fulltime[counter_i] - cum_haz_1_fulltime[counter_j]))
-                surv_n1_0 = exp(-survival0_cov_now * (cum_haz_0_fulltime[counter_i] - cum_haz_0_fulltime[counter_j]))
+                surv_n1_1 = exp(survival1_cov_now * (cum_haz_1_fulltime[counter_j] - cum_haz_1_fulltime[counter_i]))
+                surv_n1_whole = exp(survivalwhole_cov_now * (cum_haz_whole_fulltime[counter_j] - cum_haz_whole_fulltime[counter_i]))
               }
               p1 = 1/(1 + exp(-as.vector(sub_i %*% alpha_mat[, counter_j])))
 
               if(variance_method == "new"){
-                s1p1 = surv_n1_1 * p1
-                prob = s1p1 * (1 - p2 * (s1p1 + surv_n1_0 * (1 - p1)))
+                prob = surv_n1_1/surv_n1_whole * p1 * (1 - p2)
               }else{
                 prob = p1 * (1 - p2)
               }
@@ -1091,14 +1083,13 @@ estimate_alpha = function(df, cal_level, cox_b0, cox_b1, unique_T2, get_variance
           }else{
             for(counter_j in 1:(counter_i - 1)){
               if(variance_method == "new"){
-                surv_n1_1 = exp(-survival1_cov_now * (cum_haz_1_fulltime[counter_i] - cum_haz_1_fulltime[counter_j]))
-                surv_n1_0 = exp(-survival0_cov_now * (cum_haz_0_fulltime[counter_i] - cum_haz_0_fulltime[counter_j]))
+                surv_n1_1 = exp(survival1_cov_now * (cum_haz_1_fulltime[counter_j] - cum_haz_1_fulltime[counter_i]))
+                surv_n1_whole = exp(survivalwhole_cov_now * (cum_haz_whole_fulltime[counter_j] - cum_haz_whole_fulltime[counter_i]))
               }
               p1 = 1/(1 + exp(-as.vector(sub_i %*% alpha_mat[, counter_j])))
 
               if(variance_method == "new"){
-                s1p1 = surv_n1_1 * p1
-                prob = s1p1 * (1 - p2 * (s1p1 + surv_n1_0 * (1 - p1)))
+                prob = surv_n1_1/surv_n1_whole * p1 * (1 - p2)
               }else{
                 prob = p1 * (1 - p2)
               }
@@ -1623,6 +1614,10 @@ estimate_effect = function(df, effect, intervention, cal_level, sen_ana, get_var
   observed_b1 = df_b1$d2
   cox_b1 = mycoxph(time_b1, observed_b1, as.matrix(covariates[df$d1, ]), get_variance)
 
+  # whole data
+  time_whole = df$T2
+  cox_whole = mycoxph(cbind(rep(0, m), df$T2), df$d2, as.matrix(covariates), get_variance = NULL)
+
   # make it small
   #-----------------------------------------------------------------------------------------------#
   # small cox will be used while computing the covariance of alphas and the counterfactual hazard #
@@ -1631,9 +1626,10 @@ estimate_effect = function(df, effect, intervention, cal_level, sen_ana, get_var
 
   small_cox_b0 = make_small(cox_b0, b0_time)
   small_cox_b1 = make_small(cox_b1, b1_time)
+  small_cox_whole = make_small(cox_whole, unique_T2)
 
   ## alpha part
-  estimation_alpha = estimate_alpha(df, cal_level, small_cox_b0, small_cox_b1, unique_T2, get_variance, timer, num_of_cores, variance_method, threshold)
+  estimation_alpha = estimate_alpha(df, cal_level, small_cox_b1, small_cox_whole, unique_T2, get_variance, timer, num_of_cores, variance_method, threshold)
 
   ## get counterfactual hazard
   AsymVariance = sum(c('a', 'A', 'asym', 'asymptotic', 'asymptotical', 'Asym', 'Asymptotic', 'Asymptotical') %in% get_variance) > 0
@@ -1875,4 +1871,4 @@ getcolor = function(gamma){
   }
 }
 
-# last edit at 2020/10/07 16:46
+# last edit at 2020/11/28 11:15
