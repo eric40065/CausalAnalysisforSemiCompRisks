@@ -17,7 +17,7 @@
 #' @param threshold specifies if a logistic regression converge or not. Default is \code{1e-10}.
 #' @return \code{CASCR} returns a list with components specified by \code{effect}.
 #' @export
-CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level = 'median', myunit = 'raw', downsample = 1, sen_ana = FALSE, get_variance = c('asymptotic'), boot_times = 1000, timer = TRUE, num_of_cores = 1, plot_result = FALSE, variance_method = 'new', threshold = 1e-10){
+CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level = 'median', myunit = 'raw', downsample = 1, sen_ana = FALSE, get_variance = c('asymptotic'), boot_times = 1000, faster_bootstrap = 1, timer = TRUE, num_of_cores = 1, plot_result = FALSE, variance_method = 'new', threshold = 1e-10){
   # protect the original data
   dff = df
 
@@ -35,6 +35,13 @@ CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level =
 
   BootVariance = sum(c('b', 'B', 'boot', 'bootstrap', 'bootstrapping', 'Boot', 'Bootstrap', 'Bootstrapping') %in% get_variance) > 0
   if(BootVariance){
+    if(faster_bootstrap > 1){
+      faster_bootstrap = ceiling(faster_bootstrap)
+      if(myunit != "raw"){
+        myunit = myunit * faster_bootstrap
+        downsample = downsample * faster_bootstrap
+      }
+    }
     get_DE = sum(c('d', 'D', 'de', 'De', 'DE', 'direct effect', 'Direct effect', 'Direct Effect') %in% effect) > 0
     get_IE = sum(c('i', 'I', 'ie', 'Ie', 'IE', 'indirect effect', 'Indirect effect', 'Indirect Effect') %in% effect) > 0
 
@@ -87,11 +94,11 @@ CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level =
       for(i in 1:boot_times){
         if(get_DE){
           # Q_stat_DE[i] = boot_effect[[i]]$DE$Q_stat
-          boot_DE_mat[i, ] = my_eva_fun(list(boot_effect[[i]]$DE$effect, boot_effect[[i]]$DE$time), my_eva_time)
+          boot_DE_mat[i, ] = my_eva_fun(list(boot_effect[[i]]$DE$effect, boot_effect[[i]]$DE$time), my_eva_time, method = "linear")
         }
         if(get_IE){
           # Q_stat_IE[i] = boot_effect[[i]]$IE$Q_stat
-          boot_IE_mat[i, ] = my_eva_fun(list(boot_effect[[i]]$IE$effect, boot_effect[[i]]$IE$time), my_eva_time)
+          boot_IE_mat[i, ] = my_eva_fun(list(boot_effect[[i]]$IE$effect, boot_effect[[i]]$IE$time), my_eva_time, method = "linear")
         }
       }
     }else{
@@ -125,11 +132,11 @@ CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level =
         boot_effect = estimate_effect(boot_df, effect, intervention, boot_cal_level, sen_ana = FALSE, get_variance = NULL, boot_times = 0, timer = FALSE, num_of_cores = FALSE, unique_T2, b0_time, b1_time, variance_method, threshold = 1e-15)
         if(get_DE){
           # Q_stat_DE[i] = boot_effect$DE$Q_stat
-          boot_DE_mat[i, ] = my_eva_fun(list(boot_effect$DE$effect, boot_effect$DE$time), my_eva_time)
+          boot_DE_mat[i, ] = my_eva_fun(list(boot_effect$DE$effect, boot_effect$DE$time), my_eva_time, method = "linear")
         }
         if(get_IE){
           # Q_stat_IE[i] = boot_effect$IE$Q_stat
-          boot_IE_mat[i, ] = my_eva_fun(list(boot_effect$IE$effect, boot_effect$IE$time), my_eva_time)
+          boot_IE_mat[i, ] = my_eva_fun(list(boot_effect$IE$effect, boot_effect$IE$time), my_eva_time, method = "linear")
         }
 
         if(timer && bar_num[i] > 0){for(i in 1:bar_num[i]){pracma::fprintf('-')}}
@@ -757,11 +764,11 @@ form_matrix = function(sd_time_indep, sd_time_mix, sd_time_dep){
   return(m)
 }
 #' @export
-my_eva_fun = function(fun1, points, rule = '0'){
+my_eva_fun = function(fun1, points, rule = '0', method = 'constant'){
   if(rule == 'no0'){
-    return(approx(fun1[[2]], fun1[[1]], points, method = 'constant', rule = 2, ties = max)$y)
+    return(approx(fun1[[2]], fun1[[1]], points, method = method, rule = 2, ties = max)$y)
   }else if(rule == '0'){
-    return(approx(c(0, fun1[[2]]), c(0, fun1[[1]]), points, method = 'constant', rule = 2, ties = max)$y)
+    return(approx(c(0, fun1[[2]]), c(0, fun1[[1]]), points, method = method, rule = 2, ties = max)$y)
   }
 }
 #' @export
