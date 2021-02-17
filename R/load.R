@@ -939,7 +939,7 @@ estimate_alpha = function(df, cal_level, cox_b1, cox_whole, unique_T2, get_varia
     alpha_var_tmp = as.matrix(alpha_var[, 1:n_covariates_cov])
 
     if(variance_method == "new"){
-      cum_haz_1_fulltime = approx(x = cox_b1$cum_haz$time, y = cox_b1$cum_haz$cum_haz, xout = unique_T2, method = 'constant', yleft = 0, rule = 2)$y
+      cum_haz_1_fulltime = approx(x = cox_b1$cum_haz$time, y = cox_b1$cum_haz$cum_haz, xout = unique_T2, method = 'linear', yleft = 0, rule = 2)$y
       survival1_cov = exp(as.matrix(df_alpha_covariates[, 2:n_covariates]) %*% cox_b1$coeff)
 
       cum_haz_whole_fulltime = cox_whole$cum_haz$cum_haz
@@ -1725,7 +1725,7 @@ plot_CHH2020 = function(result){
 
     plot(cumhaz ~ time, data = df_asymp_IE, type = "s", lwd = 2, ylim = c(ylim_surv_lower, ylim_surv_upper), col = adjustcolor("orange", alpha.f = 0.50), main = "Survival probability ratio \n Bootstrap CI", xlab = xlab, ylab = ylab_rho, cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis, las = las)
     lines(cumhaz ~ time, data = df_asymp_DE, type = "s", lwd = 2, col = adjustcolor("dodgerblue", alpha.f = 0.50))
-    legend("bottomleft", legend = c("Indirect effct", "Direct effect"), fill = c(adjustcolor("orange", alpha.f = 0.10), adjustcolor("dodgerblue", alpha.f = 0.10)), bty = "n", border = c(adjustcolor("orange", alpha.f = 10), adjustcolor("dodgerblue", alpha.f = 10)))
+    legend("bottomleft", legend = c("Indirect effect", "Direct effect"), fill = c(adjustcolor("orange", alpha.f = 0.10), adjustcolor("dodgerblue", alpha.f = 0.10)), bty = "n", border = c(adjustcolor("orange", alpha.f = 10), adjustcolor("dodgerblue", alpha.f = 10)))
     plot_poly(df_asymp_DE$lower, df_asymp_DE$upper, df_asymp_DE$time, "dodgerblue", NULL)
     plot_poly(df_asymp_IE$lower, df_asymp_IE$upper, df_asymp_IE$time, "orange", NULL)
     abline(h = 1, col = "grey")
@@ -1736,7 +1736,7 @@ plot_CHH2020 = function(result){
 
     plot(cumhaz ~ time, data = df_asymp_IE, type = "s", lwd = 2, ylim = c(ylim_cumh_lower, ylim_cumh_upper), col = adjustcolor("orange", alpha.f = 0.50), main = "Cumulative hazard difference \n Bootstrap CI",  xlab = xlab, ylab = ylab_Del, cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis, las = las)
     lines(cumhaz ~ time, data = df_asymp_DE, type = "s", lwd = 2, col = adjustcolor("dodgerblue", alpha.f = 0.50))
-    legend("topleft", legend = c("Indirect effct", "Direct effect"), cex = 0.85, fill = c(adjustcolor("orange", alpha.f = 0.10), adjustcolor("dodgerblue", alpha.f = 0.10)), bty = "n", border = c(adjustcolor("orange", alpha.f = 10), adjustcolor("dodgerblue", alpha.f = 10)))
+    legend("topleft", legend = c("Indirect effect", "Direct effect"), cex = 0.85, fill = c(adjustcolor("orange", alpha.f = 0.10), adjustcolor("dodgerblue", alpha.f = 0.10)), bty = "n", border = c(adjustcolor("orange", alpha.f = 10), adjustcolor("dodgerblue", alpha.f = 10)))
     plot_poly(df_asymp_DE$lower, df_asymp_DE$upper, df_asymp_DE$time, "dodgerblue", NULL)
     plot_poly(df_asymp_IE$lower, df_asymp_IE$upper, df_asymp_IE$time, "orange", NULL)
     abline(h = 0, col = "grey")
@@ -1748,7 +1748,7 @@ plot_CHH2020 = function(result){
 
   plot(cumhaz ~ time, data = df_asymp_IE, type = "s", lwd = 2, ylim = c(ylim_surv_lower, ylim_surv_upper), col = adjustcolor("orange", alpha.f = 0.50), main = "Survival probability ratio \n Asymptotic CI",  xlab = xlab, ylab = ylab_rho, cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis, las = las)
   lines(cumhaz ~ time, data = df_asymp_DE, type = "s", lwd = 2, col = adjustcolor("dodgerblue", alpha.f = 0.50))
-  legend("bottomleft", legend = c("Indirect effct", "Direct effect"), cex = 0.85, fill = c(adjustcolor("orange", alpha.f = 0.10), adjustcolor("dodgerblue", alpha.f = 0.10)), bty = "n", border = c(adjustcolor("orange", alpha.f = 10), adjustcolor("dodgerblue", alpha.f = 10)))
+  legend("bottomleft", legend = c("Indirect effect", "Direct effect"), cex = 0.85, fill = c(adjustcolor("orange", alpha.f = 0.10), adjustcolor("dodgerblue", alpha.f = 0.10)), bty = "n", border = c(adjustcolor("orange", alpha.f = 10), adjustcolor("dodgerblue", alpha.f = 10)))
   plot_poly(df_asymp_DE$lower, df_asymp_DE$upper, df_asymp_DE$time, "dodgerblue", NULL)
   plot_poly(df_asymp_IE$lower, df_asymp_IE$upper, df_asymp_IE$time, "orange", NULL)
   abline(h = 1, col = "grey")
@@ -1760,7 +1760,7 @@ plot_CHH2020 = function(result){
 
   plot(cumhaz ~ time, data = df_asymp_IE, type = "s", lwd = 2, ylim = c(ylim_cumh_lower, ylim_cumh_upper), col = adjustcolor("orange", alpha.f = 0.50), main = "Cumulative hazard difference \n Asymptotic CI", xlab = xlab, ylab = ylab_Del, cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis, las = las)
   lines(cumhaz ~ time, data = df_asymp_DE, type = "s", lwd = 2, col = adjustcolor("dodgerblue", alpha.f = 0.50))
-  legend("topleft", legend = c("Indirect effct", "Direct effect"), cex = 0.85, fill = c(adjustcolor("orange", alpha.f = 0.10), adjustcolor("dodgerblue", alpha.f = 0.10)), bty = "n", border = c(adjustcolor("orange", alpha.f = 10), adjustcolor("dodgerblue", alpha.f = 10)))
+  legend("topleft", legend = c("Indirect effect", "Direct effect"), cex = 0.85, fill = c(adjustcolor("orange", alpha.f = 0.10), adjustcolor("dodgerblue", alpha.f = 0.10)), bty = "n", border = c(adjustcolor("orange", alpha.f = 10), adjustcolor("dodgerblue", alpha.f = 10)))
   plot_poly(df_asymp_DE$lower, df_asymp_DE$upper, df_asymp_DE$time, "dodgerblue", NULL)
   plot_poly(df_asymp_IE$lower, df_asymp_IE$upper, df_asymp_IE$time, "orange", NULL)
   abline(h = 0, col = "grey")
