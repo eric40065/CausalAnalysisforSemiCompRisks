@@ -39,8 +39,8 @@ CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level =
       faster_bootstrap = ceiling(faster_bootstrap)
       if(myunit != "raw"){
         myunit = myunit * faster_bootstrap
-        downsample = downsample * faster_bootstrap
       }
+      downsample = downsample * faster_bootstrap
     }
     get_DE = sum(c('d', 'D', 'de', 'De', 'DE', 'direct effect', 'Direct effect', 'Direct Effect') %in% effect) > 0
     get_IE = sum(c('i', 'I', 'ie', 'Ie', 'IE', 'indirect effect', 'Indirect effect', 'Indirect Effect') %in% effect) > 0
@@ -1878,4 +1878,4 @@ getcolor = function(gamma){
   }
 }
 
-# last edit at 2020/11/28 11:15
+# last edit at 2021/02/17 13:27
