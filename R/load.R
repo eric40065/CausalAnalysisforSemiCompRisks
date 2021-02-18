@@ -18,6 +18,7 @@
 #' @return \code{CASCR} returns a list with components specified by \code{effect}.
 #' @export
 CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level = 'median', myunit = 'raw', downsample = 1, sen_ana = FALSE, get_variance = c('asymptotic'), boot_times = 1000, faster_bootstrap = 1, timer = TRUE, num_of_cores = 1, plot_result = FALSE, variance_method = 'new', threshold = 1e-10){
+  # effect = c('DE', 'IE'); intervention = c(1, 0); cal_level = 'median'; myunit = 'raw'; downsample = 1; sen_ana = FALSE; get_variance = c('asymptotic'); boot_times = 1000; faster_bootstrap = 1; timer = TRUE; num_of_cores = 1; plot_result = FALSE; variance_method = 'new'; threshold = 1e-10
   # protect the original data
   dff = df
 
@@ -32,6 +33,7 @@ CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level =
   df = df$df
 
   result = estimate_effect(df, effect, intervention, cal_level = ana_cal_level, sen_ana, get_variance, boot_times, timer, num_of_cores, unique_T2, b0_time, b1_time, variance_method, threshold)
+  result$cal_level = ana_cal_level
 
   BootVariance = sum(c('b', 'B', 'boot', 'bootstrap', 'bootstrapping', 'Boot', 'Bootstrap', 'Bootstrapping') %in% get_variance) > 0
   if(BootVariance){
