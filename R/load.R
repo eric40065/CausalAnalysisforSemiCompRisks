@@ -499,7 +499,8 @@ generate_df = function(sample_size, repeat_size, hypo, confounder, calibration, 
   set.seed(myseed)
   alpha1Z = 0.25 * (hypo == 'alter')
   alpha2Z = 0.25 * (hypo == 'alter')
-  intersection = -0
+  intersection = 0
+  calibration = calibration & confounder
 
   alphaX = 1 * confounder
   X = c(rep(0, sample_size/2), rep(1, sample_size/2)) * confounder
