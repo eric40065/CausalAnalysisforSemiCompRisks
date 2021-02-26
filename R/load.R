@@ -17,8 +17,8 @@
 #' @param threshold specifies if a logistic regression converge or not. Default is \code{1e-10}.
 #' @return \code{CASCR} returns a list with components specified by \code{effect}.
 #' @export
-CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level = 'median', myunit = 'raw', downsample = 1, sen_ana = FALSE, get_variance = c('asymptotic'), boot_times = 1000, faster_bootstrap = 1, timer = TRUE, num_of_cores = 1, plot_result = FALSE, variance_method = 'new', threshold = 1e-10){
-  # effect = c('DE', 'IE'); intervention = c(1, 0); cal_level = 'median'; myunit = 'raw'; downsample = 1; sen_ana = FALSE; get_variance = c('asymptotic'); boot_times = 1000; faster_bootstrap = 1; timer = TRUE; num_of_cores = 1; plot_result = FALSE; variance_method = 'new'; threshold = 1e-10
+CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level = 'median', myunit = 'raw', downsample = 1, sen_ana = FALSE, get_variance = c('asymptotic'), boot_times = 1000, faster_bootstrap = 1, timer = TRUE, num_of_cores = 1, plot_result = FALSE, variance_method = 'new', threshold = 1e-10, HO = FALSE){
+  # effect = c('DE', 'IE'); intervention = c(1, 0); cal_level = 'median'; myunit = 'raw'; downsample = 1; sen_ana = FALSE; get_variance = c('asymptotic'); boot_times = 1000; faster_bootstrap = 1; timer = TRUE; num_of_cores = 10; plot_result = FALSE; variance_method = 'new'; threshold = 1e-10
   # protect the original data
   dff = df
 
@@ -32,7 +32,7 @@ CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level =
   ana_cal_level = df$cal_level
   df = df$df
 
-  result = estimate_effect(df, effect, intervention, cal_level = ana_cal_level, sen_ana, get_variance, boot_times, timer, num_of_cores, unique_T2, b0_time, b1_time, variance_method, threshold)
+  result = estimate_effect(df, effect, intervention, cal_level = ana_cal_level, sen_ana, get_variance, boot_times, timer, num_of_cores, unique_T2, b0_time, b1_time, variance_method, threshold, HO = HO)
   result$cal_level = ana_cal_level
 
   BootVariance = sum(c('b', 'B', 'boot', 'bootstrap', 'bootstrapping', 'Boot', 'Bootstrap', 'Bootstrapping') %in% get_variance) > 0
@@ -1563,21 +1563,12 @@ do_sen_ana = function(get_DE, get_IE, intervention, cal_level, estimation_alpha,
 ## counterfactual hazard
 #' @export
 get_counterfactual_hazard = function(za_iv, zb_iv, cal_level, estimation_alpha, cox_b0, cox_b1){
-  # cal_level = cal_level_tmp
   # za_iv = za_iv1; zb_iv = zb_iv1;
   # za_iv = za_iv2; zb_iv = zb_iv2;
   # cox_b0 = small_cox_b0; cox_b1 = small_cox_b1
 
   intercept = 1
   w_prob = as.vector(1/(1 + exp(-crossprod(c(intercept, zb_iv, cal_level), estimation_alpha$coeff))))
-
-  # pi1 = as.vector(1/(1 + exp(-crossprod(c(intercept, 1, cal_level), estimation_alpha$coeff))))
-  # pi0 = as.vector(1/(1 + exp(-crossprod(c(intercept, 0, cal_level), estimation_alpha$coeff))))
-  # w_diff = pi1 - pi0
-  # diff_1 = approx(x = small_cox_b1$cum_haz$time, y = diff(c(0, small_cox_b1$cum_haz$cum_haz)), xout = estimation_alpha$time, method = 'constant', rule = 2)$y * exp(cox_b1$coeff[1]); diff_1[!group_1_time] = 0
-  # diff_2 = approx(x = small_cox_b0$cum_haz$time, y = diff(c(0, small_cox_b0$cum_haz$cum_haz)), xout = estimation_alpha$time, method = 'constant', rule = 2)$y * exp(cox_b0$coeff[1]); diff_2[!group_0_time] = 0
-  # d_diff = diff_1 - diff_2
-  # IE = cumsum(w_diff * d_diff)
 
   group_0_time = estimation_alpha$time %in% cox_b0$cum_haz$time
   group_1_time = estimation_alpha$time %in% cox_b1$cum_haz$time
@@ -1604,7 +1595,7 @@ get_counterfactual_hazard = function(za_iv, zb_iv, cal_level, estimation_alpha, 
   return(counterfactual_hazard)
 }
 #' @export
-estimate_effect = function(df, effect, intervention, cal_level, sen_ana, get_variance, boot_times, timer, num_of_cores, unique_T2, b0_time, b1_time, variance_method, threshold){
+estimate_effect = function(df, effect, intervention, cal_level, sen_ana, get_variance, boot_times, timer, num_of_cores, unique_T2, b0_time, b1_time, variance_method, threshold, HO = FALSE){
   ## beta part
   # auxiliary
   m = dim(df)[1]
@@ -1653,9 +1644,7 @@ estimate_effect = function(df, effect, intervention, cal_level, sen_ana, get_var
     counterfactual_hazard_iv1 = get_counterfactual_hazard(za_iv1, zb_iv1, cal_level, estimation_alpha, small_cox_b0, small_cox_b1)
     counterfactual_hazard_iv2 = get_counterfactual_hazard(za_iv2, zb_iv2, cal_level, estimation_alpha, small_cox_b0, small_cox_b1)
     counterfactual_hazard = counterfactual_hazard_iv1 - counterfactual_hazard_iv2
-    weight = sqrt(estimation_alpha$sick_alive * estimation_alpha$healthy_alive)/estimation_alpha$alive
 
-    # result$DE$Q_stat = sum(counterfactual_hazard * weight) / sum(weight)
     result$DE$effect = counterfactual_hazard
     result$DE$time = estimation_alpha$time
     if(AsymVariance){
@@ -1672,11 +1661,16 @@ estimate_effect = function(df, effect, intervention, cal_level, sen_ana, get_var
     counterfactual_hazard_iv1 = get_counterfactual_hazard(za_iv1, zb_iv1, cal_level, estimation_alpha, small_cox_b0, small_cox_b1)
     counterfactual_hazard_iv2 = get_counterfactual_hazard(za_iv2, zb_iv2, cal_level, estimation_alpha, small_cox_b0, small_cox_b1)
     counterfactual_hazard = counterfactual_hazard_iv1 - counterfactual_hazard_iv2
-    weight = sqrt(estimation_alpha$sick_alive * estimation_alpha$healthy_alive)/estimation_alpha$alive
 
-    # result$IE$Q_stat = sum(counterfactual_hazard * weight) / sum(weight)
     result$IE$effect = counterfactual_hazard
     result$IE$time = estimation_alpha$time
+
+    if(HO){
+      integrand = diff(c(0, counterfactual_hazard))
+      weight = sqrt(estimation_alpha$sick_alive$number * estimation_alpha$healthy_alive$number)/estimation_alpha$alive$number
+      result$IE$HO = data.frame(weight = weight, integrand = integrand, time = estimation_alpha$sick_alive$time)
+    }
+
     if(AsymVariance){
       result$IE$variance = compute_variance(get_DE = FALSE, get_IE = TRUE, intervention, cal_level, estimation_alpha, cox_b0, cox_b1)
       result$IE$asym_lower = result$IE$effect - 1.96 * sqrt(result$IE$variance$variance)
@@ -1684,6 +1678,12 @@ estimate_effect = function(df, effect, intervention, cal_level, sen_ana, get_var
     }
 
     if(sen_ana){result$IE$sensitivity_analysis = do_sen_ana(get_DE = FALSE, get_IE = TRUE, intervention, cal_level, estimation_alpha, small_cox_b0, small_cox_b1)}
+  }
+
+  if(HO){
+    result$variance$MA = estimation_alpha$cov
+    if(length(cox_b0) > 1){result$variance$MB0 = solve(form_matrix(cox_b0$cov$upper_left, cox_b0$cov$lower_left, 1/cox_b0$cov$coxinf$inv_lower_right)/m)}
+    if(length(cox_b1) > 1){result$variance$MB1 = solve(form_matrix(cox_b1$cov$upper_left, cox_b1$cov$lower_left, 1/cox_b1$cov$coxinf$inv_lower_right)/m)}
   }
 
   result$alive = estimation_alpha$alive
@@ -1880,4 +1880,4 @@ getcolor = function(gamma){
   }
 }
 
-# last edit at 2021/02/24 10:12
+# last edit at 2021/02/26 16:22
