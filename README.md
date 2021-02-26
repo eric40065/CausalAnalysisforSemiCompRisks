@@ -7,24 +7,24 @@ devtools::install_github("eric40065/CausalAnalysisforSemiCompRisks")
 ```
 
 ## Usage
-The following code can reproduce everything mentioned in our paper. It will take 1 day to reproduce the analyses.
+The following code can reproduce everything mentioned in our paper. It will take 11 day to reproduce the analyses.
 ```r
 library(CausalAnalysisforSemiCompRisks)
-# To reproduce Figure 1(a), 1(b), 1(e), 1(f), 1(i), and 1(j) in page 19
+# To reproduce Figure 1(a), 1(b), 1(e), 1(f), 1(i), and 1(j) in page 9
 simulation(1, hypo = 'null')
-# To reproduce Figure 1(c), 1(d), 1(g), 1(h), 1(k), and 1(l) in page 19
+# To reproduce Figure 1(c), 1(d), 1(g), 1(h), 1(k), and 1(l) in page 9
 simulation(1, hypo = 'alter')
-# To reproduce the first part of Table 1 in page 21
+# To reproduce the first part of Table 1 in page 10
 Table11 = simulation(2, hypo = 'null', sample_size = 300)
-# To reproduce the second part of Table 1 in page 21
+# To reproduce the second part of Table 1 in page 10
 Table12 = simulation(2, hypo = 'null', sample_size = 1000)
-# To reproduce the third part of Table 1 in page 21
+# To reproduce the third part of Table 1 in page 10
 Table13 = simulation(2, hypo = 'alter', sample_size = 300)
-# To reproduce the last part of Table 1 in page 21
+# To reproduce the last part of Table 1 in page 10
 Table14 = simulation(2, hypo = 'alter', sample_size = 1000)
-# To reproduce Figure 2(a)--(d) in page 25
+# To reproduce Figure 2(a)--(d) in page 11
 HBV_result = CASCR(REVEAL_HBV, get_variance = c('asymptotic', 'bootstrap'), plot_result = T)
-# To reproduce Figure 1(a)--(j) in page 20 of supplement material
+# To reproduce Figure 1(a)--(j) in page 18 -- 19 of supplement material
 HBV_sen_ana = CASCR(REVEAL_HBV, sen_ana = T, get_variance = NULL)
 ```
 The following code provides a glimpse of the analysis.
@@ -49,7 +49,7 @@ simulation(2, hypo = 'alter', sample_size = 1000, repeat_size = 100, get_varianc
 - REVEAL-HBV is a community-based prospective cohort study conducted in Taiwan.
 - We adjusted age at the cohort entry and the history of alcohol consumption (yes vs. no) as covariates in our model.
 #### Dictionary
-REVEAL-HBV contains 11,946 male patients with 7 columns.
+REVEAL-HBV contains 11,940 male patients with 8 columns.
 - hcc.time: time to liver cancer incidence or censored time (days).
 - die.time: time to death or censored time (days).
 - hcc.case: whether or not the liver cancer incidence is observed (0: no vs. 1:yes).
@@ -57,6 +57,7 @@ REVEAL-HBV contains 11,946 male patients with 7 columns.
 - HBSAG: hepatitis B surface antigen (negative: 0 vs. positive : 1)
 - AGE: age at the cohort entry
 - alcohol1: the alcohol consumption history (no: 0 vs. yes: 1)
+- smoke1: smoking (no: 0 vs. yes: 1)
 #### Code
 ```r
 library(CausalAnalysisforSemiCompRisks)
