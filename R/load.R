@@ -20,6 +20,7 @@
 CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level = 'median', myunit = 'raw', downsample = 1, sen_ana = FALSE, get_variance = c('asymptotic'), boot_times = 1000, faster_bootstrap = 1, timer = TRUE, num_of_cores = 1, plot_result = FALSE, variance_method = 'new', threshold = 1e-10, HO = FALSE){
   # effect = c('DE', 'IE'); intervention = c(1, 0); cal_level = 'median'; myunit = 'raw'; downsample = 1; sen_ana = FALSE; get_variance = c('asymptotic'); boot_times = 1000; faster_bootstrap = 1; timer = TRUE; num_of_cores = 10; plot_result = FALSE; variance_method = 'new'; threshold = 1e-10
   # protect the original data
+  df = df[, c(1, 3, 2, 4, 5:dim(df)[2])]
   dff = df
 
   #
@@ -546,14 +547,21 @@ generate_df2 = function(sample_size, myseed = 1){
 }
 #' @export
 alternative_z_1_2 = function(hypo, effect, confounder, intervention, time_by = 5e-4){
+  #### you can change the parameters
+  alpha1Z = 0.25
+  alpha2Z = 0.25
+  alphaX = 1
+  intersection = 0
+
+  #### don't touch me
   tstart = 0
   tend = 4
   t = seq(tstart, tend, by = time_by)
   diff_t = t[2] - t[1]
-  alpha1Z = 0.25 * (hypo == 'alter')
-  alpha2Z = 0.25 * (hypo == 'alter')
-  alphaX = 1 * confounder * 0.5
-  intersection = -0
+
+  alpha1Z = alpha1Z * (hypo == 'alter')
+  alpha2Z = alpha2Z * (hypo == 'alter')
+  alphaX = alphaX * confounder * 0.5
 
   #### (2, 2)
   z_a = intervention[1]
@@ -561,10 +569,9 @@ alternative_z_1_2 = function(hypo, effect, confounder, intervention, time_by = 5
   a1zb = exp(intersection + alpha1Z * z_b + alphaX)
   ca2zb = 0.5 * exp(alpha2Z * z_b + alphaX)
   ca2za = 0.5 * exp(alpha2Z * z_a + alphaX)
-  w0_numerator = exp(-t / a1zb)
-  w0_denominator = 1/(a1zb - ca2zb) * (a1zb * exp(-t / a1zb) - ca2zb * exp(-t / ca2zb))
-  w1 = 1 - w0_numerator/w0_denominator
-  case1 = cumsum(w1) * diff_t / ca2za
+  w0zb = (1 - sdprisk::phypoexp(t, 1/a1zb)) / (1 - sdprisk::phypoexp(t, c(1/a1zb, 1/ca2zb * (1 + 1e-7))))
+  w1zb = 1 - w0zb
+  case1 = cumsum(w1zb) * diff_t / ca2za
 
   #### (2, 1)
   z_a = ifelse(effect == 'DE', intervention[2], intervention[1])
@@ -572,10 +579,9 @@ alternative_z_1_2 = function(hypo, effect, confounder, intervention, time_by = 5
   a1zb = exp(intersection + alpha1Z * z_b + alphaX)
   ca2zb = 0.5 * exp(alpha2Z * z_b + alphaX)
   ca2za = 0.5 * exp(alpha2Z * z_a + alphaX)
-  w0_numerator = exp(-t / a1zb)
-  w0_denominator = 1/(a1zb - ca2zb) * (a1zb * exp(-t / a1zb) - ca2zb * exp(-t / ca2zb))
-  w1 = 1 - w0_numerator/w0_denominator
-  case2 = cumsum(w1) * diff_t / ca2za
+  w0zb = (1 - sdprisk::phypoexp(t, 1/a1zb)) / (1 - sdprisk::phypoexp(t, c(1/a1zb, 1/ca2zb * (1 + 1e-7))))
+  w1zb = 1 - w0zb
+  case2 = cumsum(w1zb) * diff_t / ca2za
 
   #### (2, 2) - (2, 1)
   cumhaz = data.frame(hazard = case1 - case2, time = t)
@@ -1881,4 +1887,4 @@ getcolor = function(gamma){
   }
 }
 
-# last edit at 2021/02/26 16:22
+# last edit at 2021/03/25 16:22
