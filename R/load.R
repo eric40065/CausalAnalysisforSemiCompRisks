@@ -17,10 +17,10 @@
 #' @param threshold specifies if a logistic regression converge or not. Default is \code{1e-10}.
 #' @return \code{CASCR} returns a list with components specified by \code{effect}.
 #' @export
-CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level = 'median', myunit = 'raw', downsample = 1, sen_ana = FALSE, get_variance = c('asymptotic'), boot_times = 1000, faster_bootstrap = 1, timer = TRUE, num_of_cores = 1, plot_result = FALSE, variance_method = 'new', threshold = 1e-10, HO = FALSE){
+CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level = 'median', myunit = 'raw', downsample = 1, sen_ana = FALSE, get_variance = c('asymptotic'), boot_times = 1000, faster_bootstrap = 1, timer = TRUE, num_of_cores = 1, plot_result = FALSE, variance_method = 'new', threshold = 1e-10, HO = FALSE, simulation = FALSE){
   # effect = c('DE', 'IE'); intervention = c(1, 0); cal_level = 'median'; myunit = 'raw'; downsample = 1; sen_ana = FALSE; get_variance = c('asymptotic'); boot_times = 1000; faster_bootstrap = 1; timer = TRUE; num_of_cores = 10; plot_result = FALSE; variance_method = 'new'; threshold = 1e-10
   # protect the original data
-  df = df[, c(1, 3, 2, 4, 5:dim(df)[2])]
+  if(!simulation){df = df[, c(1, 3, 2, 4, 5:dim(df)[2])]}
   dff = df
 
   #
@@ -231,9 +231,9 @@ unbiasedness = function(hypo, sample_size, repeat_size, num_of_cores = 1, timer 
       df_TF = generate_df(sample_size, repeat_size = 1, hypo, confounder = T, calibration = F, myseed = i)
       df_TT = generate_df(sample_size, repeat_size = 1, hypo, confounder = T, calibration = T, myseed = i)
 
-      result_FF = CASCR(df_FF[[1]], get_variance = NULL, timer = FALSE, intervention = c(2, 1))
-      result_TF = CASCR(df_TF[[1]], get_variance = NULL, timer = FALSE, intervention = c(2, 1))
-      result_TT = CASCR(df_TT[[1]], get_variance = NULL, timer = FALSE, intervention = c(2, 1))
+      result_FF = CASCR(df_FF[[1]], get_variance = NULL, timer = FALSE, intervention = c(2, 1), simulation = TRUE)
+      result_TF = CASCR(df_TF[[1]], get_variance = NULL, timer = FALSE, intervention = c(2, 1), simulation = TRUE)
+      result_TT = CASCR(df_TT[[1]], get_variance = NULL, timer = FALSE, intervention = c(2, 1), simulation = TRUE)
       result_now = list(result_FF = result_FF, result_TF = result_TF, result_TT = result_TT)
       gc()
       return(list(result_now))
@@ -285,9 +285,9 @@ unbiasedness = function(hypo, sample_size, repeat_size, num_of_cores = 1, timer 
       df_TF = generate_df(sample_size, repeat_size = 1, hypo, confounder = T, calibration = F, myseed = i)
       df_TT = generate_df(sample_size, repeat_size = 1, hypo, confounder = T, calibration = T, myseed = i)
 
-      result_FF = CASCR(df_FF[[1]], get_variance = NULL, timer = FALSE, intervention = c(2, 1))
-      result_TF = CASCR(df_TF[[1]], get_variance = NULL, timer = FALSE, intervention = c(2, 1))
-      result_TT = CASCR(df_TT[[1]], get_variance = NULL, timer = FALSE, intervention = c(2, 1))
+      result_FF = CASCR(df_FF[[1]], get_variance = NULL, timer = FALSE, intervention = c(2, 1), simulation = TRUE)
+      result_TF = CASCR(df_TF[[1]], get_variance = NULL, timer = FALSE, intervention = c(2, 1), simulation = TRUE)
+      result_TT = CASCR(df_TT[[1]], get_variance = NULL, timer = FALSE, intervention = c(2, 1), simulation = TRUE)
 
       result_DE$FF[[i]]$time   = result_FF$DE$time
       result_DE$FF[[i]]$effect = result_FF$DE$effect
@@ -375,7 +375,7 @@ coverage = function(hypo, sample_size, repeat_size, num_of_cores, timer = TRUE, 
     i = 1; myunit = 'raw'; variance_method = 'new'
     result_now = foreach(i = 1:repeat_size, .options.snow = opts, .combine = 'c', .export = my_functions)%dopar%{
       df1 = generate_df(sample_size, repeat_size = 1, hypo, confounder = F, calibration = F, myseed = i)[[1]]
-      result_1 = CASCR(df1, get_variance = get_variance, timer = FALSE, intervention = c(2, 1), myunit = myunit, variance_method = variance_method)
+      result_1 = CASCR(df1, get_variance = get_variance, timer = FALSE, intervention = c(2, 1), myunit = myunit, variance_method = variance_method, simulation = TRUE)
       if(is.null(result_1$DE$boot_lower)){
         result_1$DE$boot_lower = result_1$DE$asym_lower
         result_1$DE$boot_upper = result_1$DE$asym_upper
@@ -389,7 +389,7 @@ coverage = function(hypo, sample_size, repeat_size, num_of_cores, timer = TRUE, 
 
       if(hypo == 'null'){
         df2 = generate_df2(sample_size, myseed = i)
-        result_2 = CASCR(df2, get_variance = get_variance, timer = FALSE, intervention = c(2, 1), myunit = myunit, variance_method = variance_method)
+        result_2 = CASCR(df2, get_variance = get_variance, timer = FALSE, intervention = c(2, 1), myunit = myunit, variance_method = variance_method, simulation = TRUE)
         if(is.null(result_2$DE$boot_lower)){
           result_2$DE$boot_lower = result_2$DE$asym_lower
           result_2$DE$boot_upper = result_2$DE$asym_upper
@@ -427,7 +427,7 @@ coverage = function(hypo, sample_size, repeat_size, num_of_cores, timer = TRUE, 
     i = 1; myunit = 'raw'; variance_method = 'new'
     for(i in 1:repeat_size){
       df1 = generate_df(sample_size, repeat_size = 1, hypo, confounder = F, calibration = F, myseed = i)[[1]]
-      result_1 = CASCR(df1, get_variance = get_variance, timer = FALSE, intervention = c(2, 1), myunit = myunit, variance_method = variance_method)
+      result_1 = CASCR(df1, get_variance = get_variance, timer = FALSE, intervention = c(2, 1), myunit = myunit, variance_method = variance_method, simulation = TRUE)
       if(is.null(result_1$DE$boot_lower)){
         result_1$DE$boot_lower = result_1$DE$asym_lower
         result_1$DE$boot_upper = result_1$DE$asym_upper
@@ -441,7 +441,7 @@ coverage = function(hypo, sample_size, repeat_size, num_of_cores, timer = TRUE, 
 
       if(hypo == 'null'){
         df2 = generate_df2(sample_size, myseed = i)
-        result_2 = CASCR(df2, get_variance = get_variance, timer = FALSE, intervention = c(2, 1), myunit = myunit, variance_method = variance_method)
+        result_2 = CASCR(df2, get_variance = get_variance, timer = FALSE, intervention = c(2, 1), myunit = myunit, variance_method = variance_method, simulation = TRUE)
         if(is.null(result_2$DE$boot_lower)){
           result_2$DE$boot_lower = result_2$DE$asym_lower
           result_2$DE$boot_upper = result_2$DE$asym_upper
@@ -828,6 +828,311 @@ my_sort_mat = function(mat){
 }
 
 ## estimation
+#' @export
+estimate_alpha_ALT = function(df, cal_level = NULL, cox_b1 = NULL, cox_whole = NULL, get_variance = NULL, timer = FALSE, num_of_cores = 1, variance_method = 'old', threshold = 1e-10){
+  # cox_b1 = small_cox_b1; cox_whole = small_cox_whole
+  # df = generate_df(sample_size = 1000, repeat_size = 1, hypo = 'null', confounder = F, calibration = F, myseed = 1)[[1]]
+  df = df[, c(1, 3, 2, 4, 5:dim(df)[2])]
+  df = data_preprocess(df, myunit = 'raw', downsample = 1)$df
+  unique_T2 = df$T2[df$d2]
+
+  ## fetch basic parameters
+  m = dim(df)[1]
+  n_col = dim(df)[2]
+  n_covariates = n_col - 4 + 1
+  observed_t2 = length(unique_T2)
+  AsymVariance = sum(c('a', 'A', 'asym', 'asymptotic', 'asymptotical', 'Asym', 'Asymptotic', 'Asymptotical') %in% get_variance) > 0
+
+  ## preallocation
+  # for alpha
+  alpha_mat = matrix(0, n_covariates, observed_t2)
+  if(AsymVariance){
+    n_covariates_cov = n_covariates - length(cal_level)
+    alpha_var = matrix(0, n_covariates * observed_t2, n_covariates)
+    alpha_cov = matrix(0, n_covariates_cov * observed_t2, n_covariates_cov * observed_t2)
+  }
+
+  ## auxiliary
+  sort_t2 = sort(df$T2, index.return = TRUE)
+  rank_t2 = approx(x = c(0, sort_t2$x), y = 0:m, xout = unique_T2, rule = 2, method = 'constant')$y + 1
+  sort_exact_t2 = sort(df$T2[df$d2 == 1])
+  rank_exact_t2 = approx(x = c(0, sort_exact_t2), y = 0:length(sort_exact_t2), xout = unique_T2, ties = 'max', rule = 2, method = 'constant')$y + 1
+  order_belonged_to = approx(x = rank_exact_t2, y = 1:observed_t2, xout = 1:sum(df$d2), ties = 'max', method = 'constant', rule = 2)$y
+  exact_time = list(time = sort_exact_t2, order_belonged_to = order_belonged_to, rank_exact_t2 = rank_exact_t2)
+
+  ## how "large" is the data
+  sick_alive = rep(0, observed_t2)
+  healthy_alive = rep(0, observed_t2)
+  alive = rep(0, observed_t2)
+
+  ## convergence or speed related
+  df_alpha_covariates = as.matrix(cbind(rep(1, m), df[sort_t2$ix, 4 + 1:(n_covariates - 1)]))
+  df_alpha_time = df[sort_t2$ix, c(1, 3)]
+  hard_hreshold = 1e-7
+  converged_alpha = rep(FALSE, observed_t2)
+  hard_converged_alpha = rep(FALSE, observed_t2)
+  t2_index = which(df$d2[sort_t2$ix])
+  counter = 0
+
+  if(timer){
+    space = 100
+    pracma::fprintf('| point estimation 20        30        40        50        60        70        80        90    100 |\n')
+    loop_count = 1:observed_t2
+    counter_total = observed_t2
+    cum_bar_num = my_eva_fun(list(1:space, 1:space / space * counter_total), loop_count, rule = '0')
+    bar_num = diff(c(0, cum_bar_num))
+  }
+  ## estimation for alpha
+  for(counter in 1:observed_t2){
+    ## counter
+    T2 = unique_T2[counter]
+    i = rank_t2[counter]
+    index_now = ((counter - 1) * n_covariates + 1) : (counter * n_covariates)
+
+    ## split data and get basic information
+    sub_Y = (df_alpha_time$T1[i:m] < T2) & (df_alpha_time$d1[i:m] == 1)
+    sick_alive[counter] = sum(sub_Y)
+    alive[counter] = m - i + 1
+    healthy_alive[counter] = alive[counter] - sick_alive[counter]
+
+    if(sum(sub_Y) < 2){
+      if(timer && bar_num[counter] > 0){for(k in 1:bar_num[counter]){pracma::fprintf('-')}}
+      next
+    }
+    sub_x = df_alpha_covariates[i:m, ]
+
+    ## estimation for coefficients
+    if(counter == 1){
+      sub_glm = glm.fit(x = sub_x, y = sub_Y, family = binomial(), intercept = FALSE)
+    }else if(!hard_converged_alpha[counter - 1]){
+      sub_glm = glm.fit(x = sub_x, y = sub_Y, family = binomial(), intercept = FALSE)
+    }else{
+      sub_glm = glm.fit(x = sub_x, y = sub_Y, family = binomial(), intercept = FALSE, start = sub_glm$coefficients, etastart = sub_x%*%alpha_vec)
+      if(!sub_glm$converged){
+        sub_glm = glm.fit(x = sub_x, y = sub_Y, family = binomial(), intercept = FALSE)
+      }
+    }
+
+    coeff_NA = sum(is.na(sub_glm$coefficients))
+    prob_min = min(sub_glm$fitted.values)
+    prob_max = max(sub_glm$fitted.values)
+
+    if(prob_min < threshold || prob_max > 1 - threshold || coeff_NA > 0){
+      converged_alpha[counter] = FALSE
+    }else{
+      if(!(prob_min < threshold || prob_max > 1 - threshold)){hard_converged_alpha[counter] = TRUE}
+      converged_alpha[counter] = TRUE
+      alpha_vec = sub_glm$coefficients
+      alpha_mat[, counter] = alpha_vec
+    }
+
+    ## estimation of variance
+    if(AsymVariance){
+      if(converged_alpha[counter]){
+        prob = sub_glm$fitted.values
+        alpha_var[index_now, ] = solve(crossprod(sub_x * (prob * (1 - prob)), sub_x))
+      }
+      index_now = index_now + n_covariates
+    }
+    if(timer && bar_num[counter] > 0){for(k in 1:bar_num[counter]){pracma::fprintf('-')}}
+    # print(c(counter, prob_min, prob_max))
+  }
+  if(timer){pracma::fprintf('\n')}
+  # refill alpha who does not converge
+  refill_index = approx(x = which(converged_alpha), y = which(converged_alpha), xout = 1:observed_t2, method = 'constant', rule = 2)$y
+  alpha_mat = alpha_mat[, refill_index]
+  if(AsymVariance){
+    for(i in which(!converged_alpha)){
+      j = refill_index[i]
+      sub_x = df_alpha_covariates[t2_index[i]:m, ]
+      prob = 1 / (1 + exp(-as.vector(sub_x %*% alpha_mat[, i])))
+      alpha_var[((i - 1) * n_covariates + 1) : (i * n_covariates), ] = tryCatch(solve(crossprod(sub_x * (prob * (1 - prob)), sub_x)), error = function(msg){return(alpha_var[((i - 2) * n_covariates + 1) : ((i - 1) * n_covariates), ])})
+    }
+  }
+  # make some dataframes
+  sick_alive = data.frame(time = unique_T2, number = sick_alive)
+  alive = data.frame(time = unique_T2, number = alive)
+  healthy_alive = data.frame(time = unique_T2, number = healthy_alive)
+  converged_alpha = data.frame(time = unique_T2, converged = converged_alpha)
+
+  ## estimation of covariance
+  if(AsymVariance){
+    alpha_var_tmp = as.matrix(alpha_var[, 1:n_covariates_cov])
+
+    if(variance_method == "new"){
+      cum_haz_1_fulltime = approx(x = cox_b1$cum_haz$time, y = cox_b1$cum_haz$cum_haz, xout = unique_T2, method = 'linear', yleft = 0, rule = 2)$y
+      survival1_cov = exp(as.matrix(df_alpha_covariates[, 2:n_covariates]) %*% cox_b1$coeff)
+
+      cum_haz_whole_fulltime = cox_whole$cum_haz$cum_haz
+      survivalwhole_cov = exp(as.matrix(df_alpha_covariates[, 2:n_covariates]) %*% cox_whole$coeff)
+    }
+
+    if(num_of_cores > 1){
+      library(foreach)
+
+      ## num_of_cores set-up
+      cores = num_of_cores
+      cl = snow::makeCluster(cores[1])
+      doSNOW::registerDoSNOW(cl)
+      pb = txtProgressBar(max = observed_t2, style = 3)
+      progress = function(n) setTxtProgressBar(pb, n)
+      opts = list(progress = progress)
+
+      alpha_cov_list = foreach(counter_i = 1:observed_t2, .options.snow = opts, .combine = 'c', .packages = 'pracma')%dopar%{
+        index_now_full = (counter_i - 1) * n_covariates + 1:n_covariates
+        index_now_uncut = (counter_i - 1) * n_covariates + 1:n_covariates_cov
+        index_now = (counter_i - 1) * n_covariates_cov + 1:n_covariates_cov
+
+        alpha_cov_tmp = matrix(0, counter_i * n_covariates_cov, n_covariates_cov)
+        alpha_cov_tmp[index_now, ] = alpha_var_tmp[index_now_uncut, ]
+
+        ## fill off-diagonal
+        if(counter_i > 1){
+          sub_i = df_alpha_covariates[rank_t2[counter_i]:m, ]
+
+          if(variance_method == "new"){
+            survival1_cov_now = survival1_cov[rank_t2[counter_i]:m]
+            survivalwhole_cov_now = survivalwhole_cov[rank_t2[counter_i]:m]
+          }
+
+          p2 = as.vector(1 / (1 + exp(-sub_i %*% alpha_mat[, counter_i])))
+          sub_i_cov_2 = sub_i %*% alpha_var_tmp[index_now_full, ] # counter_i = cov_2
+
+          index_now_j_full = 1:n_covariates
+          index_now_j_uncut = 1:n_covariates_cov
+          index_now_j = 1:n_covariates_cov
+          if(rank_t2[counter_i] == m){
+            for(counter_j in 1:(counter_i - 1)){
+              if(variance_method == "new"){
+                surv_n1_1 = exp(survival1_cov_now * (cum_haz_1_fulltime[counter_j] - cum_haz_1_fulltime[counter_i]))
+                surv_n1_whole = exp(survivalwhole_cov_now * (cum_haz_whole_fulltime[counter_j] - cum_haz_whole_fulltime[counter_i]))
+              }
+              p1 = 1/(1 + exp(-as.vector(sub_i %*% alpha_mat[, counter_j])))
+
+              if(variance_method == 'new'){
+                prob = surv_n1_1/surv_n1_whole * p1 * (1 - p2)
+              }else{
+                prob = p1 * (1 - p2)
+              }
+
+              alpha_cov_tmp[index_now_j, ] = alpha_var[index_now_j_uncut, ] %*% (sub_i * prob) %*% sub_i_cov_2
+              index_now_j = index_now_j + n_covariates_cov
+              index_now_j_uncut = index_now_j_uncut + n_covariates
+              index_now_j_full = index_now_j_full + n_covariates
+            }
+          }else{
+            for(counter_j in 1:(counter_i - 1)){
+              if(variance_method == "new"){
+                surv_n1_1 = exp(survival1_cov_now * (cum_haz_1_fulltime[counter_j] - cum_haz_1_fulltime[counter_i]))
+                surv_n1_whole = exp(survivalwhole_cov_now * (cum_haz_whole_fulltime[counter_j] - cum_haz_whole_fulltime[counter_i]))
+              }
+              p1 = 1/(1 + exp(-as.vector(sub_i %*% alpha_mat[, counter_j])))
+
+              if(variance_method == 'new'){
+                prob = surv_n1_1/surv_n1_whole * p1 * (1 - p2)
+              }else{
+                prob = p1 * (1 - p2)
+              }
+
+              alpha_cov_tmp[index_now_j, ] = tcrossprod(alpha_var[index_now_j_uncut, ], sub_i * prob) %*% sub_i_cov_2
+              index_now_j = index_now_j + n_covariates_cov
+              index_now_j_uncut = index_now_j_uncut + n_covariates
+              index_now_j_full = index_now_j_full + n_covariates
+            }
+          }
+        }
+        gc()
+        return(list(alpha_cov_tmp))
+      }
+      snow::stopCluster(cl)
+      if(timer){pracma::fprintf('\n')}
+      index_now = 1:n_covariates_cov
+      for(counter_i in 1:observed_t2){
+        alpha_cov[1:(counter_i * n_covariates_cov), index_now] = alpha_cov_list[[counter_i]]
+        index_now = index_now + n_covariates_cov
+      }
+    }else{
+      if(timer){
+        pracma::fprintf('| variance estimation        30        40        50        60        70        80        90    100 |\n')
+        loop_count = (1:observed_t2) * (1:observed_t2 - 1) / 2
+        counter_total = observed_t2 * (observed_t2 - 1) / 2
+        cum_bar_num = my_eva_fun(list(1:space, 1:space / space * counter_total), loop_count, rule = '0')
+        bar_num = diff(c(0, cum_bar_num))
+      }
+      for(counter_i in 1:observed_t2){
+        index_now = (counter_i - 1) * n_covariates_cov + 1:n_covariates_cov
+        index_now_full = (counter_i - 1) * n_covariates + 1:n_covariates
+        index_now_uncut = (counter_i - 1) * n_covariates + 1:n_covariates_cov
+
+        ## fill diagonal block
+        alpha_cov[index_now, index_now] = alpha_var_tmp[index_now_uncut, ]
+
+        ## fill off-diagonal
+        if(counter_i > 1){
+          sub_i = df_alpha_covariates[rank_t2[counter_i]:m, ]
+          if(variance_method == "new"){
+            survival1_cov_now = survival1_cov[rank_t2[counter_i]:m]
+            survivalwhole_cov_now = survivalwhole_cov[rank_t2[counter_i]:m]
+          }
+
+          p2 = as.vector(1 / (1 + exp(-sub_i %*% alpha_mat[, counter_i])))
+          sub_i_cov_2 = sub_i %*% alpha_var_tmp[index_now_full, ] # counter_i = cov_2
+
+          index_now_j_full = 1:n_covariates
+          index_now_j_uncut = 1:n_covariates_cov
+          index_now_j = 1:n_covariates_cov
+          alpha_cov_tmp = matrix(0, (counter_i - 1) * n_covariates_cov, n_covariates_cov)
+          if(rank_t2[counter_i] == m){
+            for(counter_j in 1:(counter_i - 1)){
+              if(variance_method == "new"){
+                surv_n1_1 = exp(survival1_cov_now * (cum_haz_1_fulltime[counter_j] - cum_haz_1_fulltime[counter_i]))
+                surv_n1_whole = exp(survivalwhole_cov_now * (cum_haz_whole_fulltime[counter_j] - cum_haz_whole_fulltime[counter_i]))
+              }
+              p1 = 1/(1 + exp(-as.vector(sub_i %*% alpha_mat[, counter_j])))
+
+              if(variance_method == "new"){
+                prob = surv_n1_1/surv_n1_whole * p1 * (1 - p2)
+              }else{
+                prob = p1 * (1 - p2)
+              }
+
+              alpha_cov_tmp[index_now_j, ] = alpha_var[index_now_j_uncut, ] %*% (sub_i * prob) %*% sub_i_cov_2
+              index_now_j = index_now_j + n_covariates_cov
+              index_now_j_uncut = index_now_j_uncut + n_covariates
+              index_now_j_full = index_now_j_full + n_covariates
+            }
+          }else{
+            for(counter_j in 1:(counter_i - 1)){
+              if(variance_method == "new"){
+                surv_n1_1 = exp(survival1_cov_now * (cum_haz_1_fulltime[counter_j] - cum_haz_1_fulltime[counter_i]))
+                surv_n1_whole = exp(survivalwhole_cov_now * (cum_haz_whole_fulltime[counter_j] - cum_haz_whole_fulltime[counter_i]))
+              }
+              p1 = 1/(1 + exp(-as.vector(sub_i %*% alpha_mat[, counter_j])))
+
+              if(variance_method == "new"){
+                prob = surv_n1_1/surv_n1_whole * p1 * (1 - p2)
+              }else{
+                prob = p1 * (1 - p2)
+              }
+
+              alpha_cov_tmp[index_now_j, ] = tcrossprod(alpha_var[index_now_j_uncut, ], sub_i * prob) %*% sub_i_cov_2
+              index_now_j = index_now_j + n_covariates_cov
+              index_now_j_uncut = index_now_j_uncut + n_covariates
+              index_now_j_full = index_now_j_full + n_covariates
+            }
+          }
+          alpha_cov[1:(index_now[1] - 1), index_now] = alpha_cov_tmp
+        }
+        if(timer && bar_num[counter_i] > 0){for(i in 1:bar_num[counter_i]){pracma::fprintf('-')}}
+      }
+      if(timer){pracma::fprintf('\n')}
+    }
+    gdata::lowerTriangle(alpha_cov) = gdata::upperTriangle(alpha_cov, byrow = TRUE)
+    return(list(time = unique_T2, coeff = alpha_mat, cov = alpha_cov, sick_alive = sick_alive, healthy_alive = healthy_alive, alive = alive, converged_alpha = converged_alpha, exact_time = exact_time))
+  }else{
+    return(list(time = unique_T2, coeff = alpha_mat, sick_alive = sick_alive, healthy_alive = healthy_alive, alive = alive, converged_alpha = converged_alpha, exact_time = exact_time))
+  }
+}
 #' @export
 estimate_alpha = function(df, cal_level, cox_b1, cox_whole, unique_T2, get_variance, timer, num_of_cores, variance_method, threshold){
   # cox_b1 = small_cox_b1; cox_whole = small_cox_whole
@@ -1888,4 +2193,4 @@ getcolor = function(gamma){
   }
 }
 
-# last edit at 2021/03/25 16:22
+# last edit at 2021/03/26 15:13
