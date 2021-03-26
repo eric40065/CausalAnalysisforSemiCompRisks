@@ -170,6 +170,7 @@ CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level =
     return(NULL)
   })
   }
+  set.seed(Sys.time())
   return(result)
 }
 
