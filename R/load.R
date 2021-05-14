@@ -117,6 +117,7 @@ CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level =
         bar_num = diff(c(0, cum_bar_num))
       }
       i = 1
+      safe_index = NULL
       for(i in 1:boot_times){
         # print(i)
         set.seed(2020 + i)
@@ -132,22 +133,27 @@ CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level =
         boot_cal_level = boot_df$cal_level
         boot_df = boot_df$df
         
-        boot_effect = estimate_effect(boot_df, effect, intervention, boot_cal_level, sen_ana = FALSE, get_variance = NULL, boot_times = 0, timer = FALSE, num_of_cores = FALSE, unique_T2, b0_time, b1_time, variance_method, threshold = 1e-15)
-        if(get_DE){
-          # Q_stat_DE[i] = boot_effect$DE$Q_stat
-          boot_DE_mat[i, ] = my_eva_fun(list(boot_effect$DE$effect, boot_effect$DE$time), my_eva_time, method = "linear")
-        }
-        if(get_IE){
-          # Q_stat_IE[i] = boot_effect$IE$Q_stat
-          boot_IE_mat[i, ] = my_eva_fun(list(boot_effect$IE$effect, boot_effect$IE$time), my_eva_time, method = "linear")
+        boot_effect = tryCatch(estimate_effect(boot_df, effect, intervention, boot_cal_level, sen_ana = FALSE, get_variance = NULL, boot_times = 0, timer = FALSE, num_of_cores = FALSE, unique_T2, b0_time, b1_time, variance_method, threshold = 1e-15), error = function(msg){return(list(msg = msg))})
+        if(is.null(boot_effect$msg)){
+          safe_index = c(safe_index, i)
+          if(get_DE){
+            # Q_stat_DE[i] = boot_effect$DE$Q_stat
+            boot_DE_mat[i, ] = my_eva_fun(list(boot_effect$DE$effect, boot_effect$DE$time), my_eva_time, method = "linear")
+          }
+          if(get_IE){
+            # Q_stat_IE[i] = boot_effect$IE$Q_stat
+            boot_IE_mat[i, ] = my_eva_fun(list(boot_effect$IE$effect, boot_effect$IE$time), my_eva_time, method = "linear")
+          }
         }
         
         if(timer && bar_num[i] > 0){for(i in 1:bar_num[i]){pracma::fprintf('-')}}
       }
       if(timer){pracma::fprintf('\n')}
     }
-    boot_variance_id = floor(boot_times * c(0.025, 0.975))
+    boot_variance_id = floor(length(safe_index) * c(0.025, 0.975))
     boot_variance_id[boot_variance_id == 0] = 1
+    boot_DE_mat = boot_DE_mat[safe_index, ]
+    boot_IE_mat = boot_IE_mat[safe_index, ]
     
     if(get_DE){
       boot_DE_mat = my_sort_mat(boot_DE_mat)
@@ -159,6 +165,7 @@ CASCR = function(df, effect = c('DE', 'IE'), intervention = c(1, 0), cal_level =
       result$IE$boot_lower = boot_IE_mat[boot_variance_id[1], ]
       result$IE$boot_upper = boot_IE_mat[boot_variance_id[2], ]
     }
+    result$boot_times = length(safe_index)
   }
   if(plot_result){tryCatch(plot_CHH2020(result), error = function(msg){
     print('Something wrong with the plot function. Please tell me.')
